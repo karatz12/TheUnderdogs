@@ -90,4 +90,40 @@ document.addEventListener('DOMContentLoaded', () => {
   lightboxClose.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+
+  /* ---------- 6) Active nav link ανάλογα με την ενότητα στην οθόνη ---------- */
+  const navLinks = document.querySelectorAll('.main-nav a');
+  const sections = Array.from(navLinks)
+    .map(link => document.querySelector(link.getAttribute('href')))
+    .filter(Boolean);
+
+  if ('IntersectionObserver' in window && sections.length){
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting){
+          const id = '#' + entry.target.id;
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === id);
+          });
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+
+    sections.forEach(sec => navObserver.observe(sec));
+  }
+
+  /* ---------- 7) Ελαφρύ parallax στη hero φωτογραφία ---------- */
+  const heroBg = document.querySelector('.hero-bg');
+  if (heroBg && !prefersReducedMotion){
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const offset = Math.min(window.scrollY * 0.08, 60);
+        heroBg.style.backgroundPositionY = `calc(30% + ${offset}px)`;
+        ticking = false;
+      });
+    }, { passive: true });
+  }
 });
